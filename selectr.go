@@ -104,7 +104,7 @@ func (r *SliceElementResolver) Expression() ast.Expr {
 var _ Resolver = (*SliceElementResolver)(nil)
 
 // Parse parses a selector.
-func Parse(s string) (*TraversalTreeNode, error) {
+func Parse(s string) (*Selector, error) {
 	exprs, err := parser.New(strings.NewReader(s)).Parse()
 	if err != nil {
 		return nil, err
@@ -151,7 +151,9 @@ func Parse(s string) (*TraversalTreeNode, error) {
 		tail = curr
 	}
 
-	return head, nil
+	return &Selector{
+		tree: head,
+	}, nil
 }
 
 // TraversalTreeNode represents a tree node responsible for traversing

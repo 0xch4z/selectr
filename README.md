@@ -20,12 +20,12 @@ m := map[string]interface{}{
 }
 
 sel, _ := selectr.Parse(".foo")
-sel.Resolve(m) // => map[string]interface{"bar": []interface{}{1, 2, 3}}
+sel.Resolve(m) // => map[string]interface{}{"bar": []interface{}{1, 2, 3}}
 
-sel, _ := selectr.Parse(".foo.bar")
+sel, _ = selectr.Parse(".foo.bar")
 sel.Resolve(m) // => []interface{}{1, 2, 3}
 
-sel, _ := selectr.Parse(".foo.bar[1]")
+sel, _ = selectr.Parse(".foo.bar[1]")
 sel.Resolve(m) // => 2
 ```
 
