@@ -37,8 +37,8 @@ var _ Expr = (*IndexExpr)(nil)
 
 // IndexExpr represents an attribute selector.
 type AttrExpr struct {
-	Dot       *Node
-	Attribute *Node
+	Dot  *Node
+	Attr *Node
 }
 
 func (e *AttrExpr) StartPos() int {
@@ -46,7 +46,7 @@ func (e *AttrExpr) StartPos() int {
 }
 
 func (e *AttrExpr) EndPos() int {
-	return e.Attribute.EndPos
+	return e.Attr.EndPos
 }
 
 func (AttrExpr) expr() {}

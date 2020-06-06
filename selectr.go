@@ -117,7 +117,7 @@ func Parse(s string) (*Selector, error) {
 		switch e := expr.(type) {
 		case *ast.AttrExpr:
 			resolver = &MapEntryResolver{
-				Key:  e.Attribute.Lit,
+				Key:  e.Attr.Lit,
 				Expr: e,
 			}
 
