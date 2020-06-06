@@ -78,8 +78,8 @@ func (p *Parser) parseAttributeExpr() *ast.AttrExpr {
 
 	attr := p.expect(token.Ident)
 	return &ast.AttrExpr{
-		Dot:       dot,
-		Attribute: attr,
+		Dot:  dot,
+		Attr: attr,
 	}
 }
 

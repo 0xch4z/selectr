@@ -19,7 +19,7 @@ func TestParserParse(t *testing.T) {
 			content: "foo[5]",
 			expected: []ast.Expr{
 				&ast.AttrExpr{
-					Attribute: &ast.Node{
+					Attr: &ast.Node{
 						Tok:      token.Ident,
 						Lit:      "foo",
 						StartPos: 0,
@@ -105,7 +105,7 @@ func TestParserParse(t *testing.T) {
 						StartPos: 14,
 						EndPos:   15,
 					},
-					Attribute: &ast.Node{
+					Attr: &ast.Node{
 						Tok:      token.Ident,
 						Lit:      "bazz",
 						StartPos: 15,
@@ -148,7 +148,7 @@ func TestParserParse(t *testing.T) {
 						StartPos: 0,
 						EndPos:   1,
 					},
-					Attribute: &ast.Node{
+					Attr: &ast.Node{
 						Tok:      token.Ident,
 						Lit:      "foo",
 						StartPos: 1,
@@ -162,7 +162,7 @@ func TestParserParse(t *testing.T) {
 						StartPos: 5,
 						EndPos:   6,
 					},
-					Attribute: &ast.Node{
+					Attr: &ast.Node{
 						Tok:      token.Ident,
 						Lit:      "bar",
 						StartPos: 6,
