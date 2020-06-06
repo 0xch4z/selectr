@@ -1,4 +1,4 @@
-# selectr
+# selectr ![test][test-badge]
 
 > Select values from objects/arrays with key-path notation.
 
@@ -60,3 +60,5 @@ sel.Resolve(m) // => 2
   The `val` is resolved to `"main"`.
 
 - Import dynamic values from dynamic data files.
+
+[test-badge]: https://github.com/Charliekenney23/selectr/workflows/test/badge.svg
