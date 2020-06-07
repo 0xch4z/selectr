@@ -84,7 +84,7 @@ func (r *SliceElementResolver) Resolve(v interface{}) (interface{}, error) {
 	switch v := v.(type) {
 	case []interface{}:
 		if r.Index > len(v)-1 {
-			return nil, fmt.Errorf("index out of range; index is %d but length is only %d", v, len(v))
+			return nil, fmt.Errorf("index out of range; index is %d but length is only %d", r.Index, len(v))
 		}
 		return v[r.Index], nil
 	default:

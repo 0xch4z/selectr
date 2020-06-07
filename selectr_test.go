@@ -23,6 +23,14 @@ type parseTestFixture struct {
 	expected *TraversalTreeNode
 }
 
+type resolveTestFixture struct {
+	selector string
+	err      error
+	errRegex *regexp.Regexp
+	val      interface{}
+	expected interface{}
+}
+
 func runParseTest(t *testing.T, fixture parseTestFixture) {
 	t.Helper()
 
@@ -50,6 +58,35 @@ func runParseTest(t *testing.T, fixture parseTestFixture) {
 
 	if !cmp.Equal(sel.tree, fixture.expected, cmpOpts...) {
 		t.Errorf("`%s` was not parsed as expected:\n%s", fixture.selector, cmp.Diff(fixture.expected, sel.tree, cmpOpts...))
+	}
+}
+
+func runResolveTest(t *testing.T, fixture resolveTestFixture) {
+	t.Helper()
+
+	sel, parseErr := Parse(fixture.selector)
+	if parseErr != nil {
+		t.Errorf("could not parse selector `%s`: %s", fixture.selector, parseErr)
+		return
+	}
+
+	result, resolveErr := sel.Resolve(fixture.val)
+
+	if fixture.errRegex != nil {
+		if resolveErr == nil {
+			t.Error("expected error to match regex but none was thrown")
+			return
+		} else if !fixture.errRegex.Match([]byte(resolveErr.Error())) {
+			t.Errorf("expected error to match pattern '%s' but got '%s'", fixture.errRegex, resolveErr.Error())
+			return
+		}
+	} else if diff := cmp.Diff(fixture.err, resolveErr); diff != "" {
+		t.Errorf("error for resolving `%s` was not as expected:\n%s", fixture.selector, diff)
+		return
+	}
+
+	if diff := cmp.Diff(fixture.expected, result); diff != "" {
+		t.Errorf("`%s` was not resolved as expected:\n%s", fixture.selector, diff)
 	}
 }
 
@@ -166,5 +203,66 @@ func TestParse(t *testing.T) {
 				Index: 10,
 			},
 		}),
+	})
+}
+
+func TestResolve(t *testing.T) {
+	runResolveTest(t, resolveTestFixture{
+		selector: "[0]",
+		val:      []interface{}{1, 2, 3},
+		expected: 1,
+	})
+
+	runResolveTest(t, resolveTestFixture{
+		selector: "foo.bar",
+		val:      map[string]interface{}{"foo": map[string]interface{}{"bar": "test"}},
+		expected: "test",
+	})
+
+	runResolveTest(t, resolveTestFixture{
+		selector: "object['nestedObject']['arrayOfObjects'][1]['numbers'][2]",
+		val: map[string]interface{}{
+			"object": map[string]interface{}{
+				"nestedObject": map[string]interface{}{
+					"arrayOfObjects": []interface{}{
+						map[string]interface{}{"foo": "bar"},
+						map[string]interface{}{
+							"numbers": []interface{}{1, 2, 4, 8, 16, 32, 64, 128},
+						},
+					},
+				},
+			},
+		},
+		expected: 4,
+	})
+}
+
+func TestResolve_error(t *testing.T) {
+	runResolveTest(t, resolveTestFixture{
+		selector: ".arr[0]",
+		val:      map[string]interface{}{},
+		err: ResolveError{
+			Err: TypeError{
+				ExpectedType: "[]interface {}",
+				Value:        nil,
+			},
+		},
+	})
+
+	runResolveTest(t, resolveTestFixture{
+		selector: "foo",
+		val:      []interface{}{},
+		err: ResolveError{
+			Err: TypeError{
+				ExpectedType: "map[string]interface {}",
+				Value:        []interface{}{},
+			},
+		},
+	})
+
+	runResolveTest(t, resolveTestFixture{
+		selector: "[5]",
+		val:      []interface{}{1, 2, 3},
+		errRegex: regexp.MustCompile("index out of range; index is 5 but length is only 3"),
 	})
 }
