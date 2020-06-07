@@ -21,11 +21,6 @@ type Parser struct {
 	}
 }
 
-// NewParser returns a new instance of Parser.
-func NewParser(r io.Reader) *Parser {
-	return &Parser{s: NewScanner(r)}
-}
-
 // scan gets the next node from the underlying *Scanner or from the
 // buffer.
 func (p *Parser) scan() *ast.Node {
@@ -168,6 +163,7 @@ ParseLoop:
 	return
 }
 
+// New returns a new instance of Parser.
 func New(r io.Reader) *Parser {
 	return &Parser{
 		s: NewScanner(r),
