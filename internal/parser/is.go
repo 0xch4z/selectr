@@ -2,7 +2,11 @@ package parser
 
 // isWhitespace determines if a character is a whitespace character.
 func isWhitespace(ch rune) bool {
-	return ch == ' ' || ch == '\t' || ch == '\n'
+	switch ch {
+	case '\t', '\n', '\v', '\f', '\r', ' ', '\u0085', '\u00A0':
+		return true
+	}
+	return false
 }
 
 // isLetter determines if a character is a letter character.

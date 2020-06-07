@@ -123,7 +123,9 @@ ParseLoop:
 			case quote, 'a', 'b', 'e', 'f', 'n', 'r', 't', 'v', '\\', '?':
 				buf.WriteString("\\" + string(escapee))
 			default:
-				s.errs.Push(&Error{Pos: s.pos, Msg: "invalid escape sequence"})
+				// position should be one back to the start of the escape sequence with
+				// the backslash character.
+				s.errs.Push(&Error{Pos: s.pos - 1, Msg: "invalid escape sequence"})
 				break ParseLoop
 			}
 
