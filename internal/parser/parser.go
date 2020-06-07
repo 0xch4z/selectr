@@ -7,7 +7,7 @@ import (
 	"github.com/Charliekenney23/selectr/internal/parser/token"
 )
 
-// EOF represents the end of a file.
+// EOF signals the end of a file.
 var EOF = rune(0)
 
 // Parser represents a parser.
