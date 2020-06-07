@@ -42,6 +42,11 @@ type AttrExpr struct {
 }
 
 func (e *AttrExpr) StartPos() int {
+	if e.Dot == nil {
+		// if the dot is omitted, use the Attr Node as a reference point
+		// for the start position.
+		return e.Attr.StartPos
+	}
 	return e.Dot.StartPos
 }
 
