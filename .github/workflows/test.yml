@@ -18,5 +18,7 @@ jobs:
       id: go
     - name: checkout
       uses: actions/checkout@v2
+    - name: verify
+      run: make verify
     - name: test
       run: make test
