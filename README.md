@@ -33,7 +33,7 @@ sel.Resolve(m) // => 2
 
 - Referencing a dynamic value in a JSON/YAML file:
 
-  Consider you maintain a program which allows users to reference arbitrary values, and one strategy of resolving a value is referencing a symbol in a JSON file.
+  Consider you maintain a program that allows users to reference arbitrary values, and one strategy of resolving a value is referencing a symbol in a JSON file.
 
   ```json
   # example.json
