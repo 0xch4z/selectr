@@ -26,7 +26,8 @@ type Parser struct {
 func (p *Parser) scan() *ast.Node {
 	p.pos++
 
-	// if the buffer is not empty, return it.
+	// if the buffer is not empty, return the buffered node and mark it
+	// as empty.
 	if p.buf.n != 0 {
 		p.buf.n = 0
 		return p.buf.node
@@ -86,6 +87,7 @@ func (p *Parser) parseStringLit() *ast.StringLit {
 	}
 }
 
+// parseIntLit parses an integer literal.
 func (p *Parser) parseIntLit() *ast.IntLit {
 	node := p.expect(token.Int)
 	return &ast.IntLit{
@@ -134,23 +136,28 @@ ParseLoop:
 
 		switch node.Tok {
 		case token.EOF:
+			// the selector has been terminated, we can stop parsing.
 			break ParseLoop
 
-		case token.WS: // whitespace
+		case token.WS:
+			// whitespace does not yield an expression; ignore it.
 			continue
 
-		case token.Dot, token.Ident: // attribute expression
+		case token.Dot, token.Ident:
 			p.unscan()
 			exprs = append(exprs, p.parseAttributeExpr())
 
-		case token.LBracket: // index expression
+		case token.LBracket:
 			p.unscan()
 			exprs = append(exprs, p.parseIndexExpression())
 
 		default:
+			// attribute and index expression are the only valid top level
+			// expressions.
 			return nil, errUnexpected(node.StartPos, node.Lit)
 		}
 
+		// throw any underlying scanner errors, if there are any.
 		if len(p.s.errs) != 0 {
 			return nil, p.s.errs
 		}
