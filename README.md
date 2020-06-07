@@ -4,7 +4,7 @@
 
 ## Key-path notation
 
-Key-path notation is a simple format for describing how to traverse data structures. It's very similar to C languages, but with limitations. See the reference for more information.
+Key-path notation is a simple format for describing how to traverse data structures. It's very similar to C languages, but with limitations. See the [reference document](docs/key-path-notation.md) for more information.
 
 ## Usage
 
