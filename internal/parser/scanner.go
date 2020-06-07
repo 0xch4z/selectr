@@ -39,16 +39,18 @@ func (s *Scanner) unread() {
 	// it's okay to swallow this error. (*bufio.Reader).UnreadRune only
 	// throws an error if the last called method was not ReadRune.
 	if err := s.r.UnreadRune(); err == nil {
+		// decrement the current position if the last read rune was
+		// successfully unread
 		s.pos--
 	}
 }
 
-// scanWhitespace consumes all contiguous whitespace.
+// scanWhitespace consumes all contiguous whitespace runes.
 func (s *Scanner) scanWhitespace() (tok token.Token, lit string) {
 	var buf bytes.Buffer
 
-	// Read every contiguous whitespace character into the buffer.
-	// If a non-whitespace character is found, the loop will exit.
+	// read every contiguous whitespace character into the buffer.
+	// if a non-whitespace character or EOF occurs, the loop will exit.
 	for {
 		if ch := s.read(); ch == EOF {
 			break
@@ -67,8 +69,9 @@ func (s *Scanner) scanWhitespace() (tok token.Token, lit string) {
 func (s *Scanner) scanIdent() (tok token.Token, lit string) {
 	var buf bytes.Buffer
 
-	// Read every subsequent ident character into the buffer.
-	// Non-ident characters and EOF will cause the loop to exit.
+	// read every contiguous ident character into the buffer.
+	// if a non-alphanumeric character other than '_' or EOF occurs,
+	// the loop will exit.
 	for {
 		if ch := s.read(); ch == EOF {
 			break
@@ -83,10 +86,12 @@ func (s *Scanner) scanIdent() (tok token.Token, lit string) {
 	return token.Ident, buf.String()
 }
 
-// scanInt consumes all contiguous digit runes.
+// scanInt consumes all contiguous integer runes.
 func (s *Scanner) scanInt() (tok token.Token, lit string) {
 	var buf bytes.Buffer
 
+	// read every contiguous numeric character into the buffer.
+	// if a non-numeric character or EOF occurs, the loop will exit.
 	for {
 		if ch := s.read(); ch == EOF {
 			break
@@ -105,15 +110,22 @@ func (s *Scanner) scanInt() (tok token.Token, lit string) {
 func (s *Scanner) scanString() (tok token.Token, lit string) {
 	var buf bytes.Buffer
 
-	// this is either `"` or `'`.
+	// we can be sure that quote is either a `'` or a `"` rune as this
+	// method is only called in Scan if one of these quotes are detected.
+	// the quote must be saved so we can check that it occurs again,
+	// terminating the string.
 	quote := s.read()
 	buf.WriteRune(quote)
 
 ParseLoop:
 	for {
 		ch := s.read()
+
 		switch ch {
 		case '\n', EOF:
+			// if a new line or EOF occurs in the middle of a string literal
+			// the string is invalid as it has not been terminated with an
+			// end-quote.
 			s.errs.Push(&Error{Pos: s.pos, Msg: "unterminated string literal"})
 			break ParseLoop
 
@@ -123,18 +135,21 @@ ParseLoop:
 			case quote, 'a', 'b', 'e', 'f', 'n', 'r', 't', 'v', '\\', '?':
 				buf.WriteString("\\" + string(escapee))
 			default:
-				// position should be one back to the start of the escape sequence with
-				// the backslash character.
+				// the specified string escape is not recognized, so it's invalid.
+				// the position included with the error should be one back to the
+				// start of the escape sequence with the backslash character.
 				s.errs.Push(&Error{Pos: s.pos - 1, Msg: "invalid escape sequence"})
 				break ParseLoop
 			}
 
 		default:
+			// read subsequent string character into the buffer.
 			buf.WriteRune(ch)
 		}
 
 		if ch == quote {
-			// string has been terminated
+			// if the character matches the quote that started the string, then the
+			// string is terminated and we can stop parsing the string.
 			break ParseLoop
 		}
 	}
@@ -142,7 +157,7 @@ ParseLoop:
 	return token.String, buf.String()
 }
 
-// Scan returns the next token and literal value.
+// Scan reads the next token.
 func (s *Scanner) Scan() ast.Node {
 	startPos := s.pos
 	ch := s.read()
@@ -150,7 +165,7 @@ func (s *Scanner) Scan() ast.Node {
 	tok := token.Illegal
 	lit := string(ch)
 
-	// If we see whitespace, consume all contiguous whitespace.
+	// parse multi character token types if detected.
 	if isWhitespace(ch) {
 		s.unread()
 		tok, lit = s.scanWhitespace()
@@ -165,6 +180,7 @@ func (s *Scanner) Scan() ast.Node {
 		tok, lit = s.scanString()
 	}
 
+	// set the token type of any single character token types.
 	switch ch {
 	case EOF:
 		tok = token.EOF
