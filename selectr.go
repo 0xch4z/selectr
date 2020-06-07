@@ -9,23 +9,27 @@ import (
 )
 
 // ResolveError represents an error that occured while resolving a
-// value from a key-path.
+// value for a given selector.
 type ResolveError struct {
-	Err     error
-	KeyPath string
+	// Err is the underlying error.
+	Err error
+
+	// Pos is the position in the corresponding key-path of the underlying
+	// expression that the resolver was dervied from.
+	Pos int
 }
 
 // Error implements (error).Error
 func (err ResolveError) Error() string {
-	return err.KeyPath + " " + err.Err.Error()
+	return err.Err.Error()
 }
 
 // resolverError wraps an error to make a ResolveError with the given
 // key-path.
-func resolveError(keyPath string, err error) ResolveError {
+func resolveError(pos int, err error) ResolveError {
 	return ResolveError{
-		KeyPath: keyPath,
-		Err:     err,
+		Err: err,
+		Pos: pos,
 	}
 }
 
@@ -189,7 +193,7 @@ func (s *Selector) Resolve(v interface{}) (interface{}, error) {
 	for curr != nil {
 		var err error
 		if v, err = curr.Resolver.Resolve(v); err != nil {
-			return nil, resolveError("", err)
+			return nil, resolveError(curr.Resolver.Expression().StartPos(), err)
 		}
 		curr = curr.Child
 	}
