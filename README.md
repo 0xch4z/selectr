@@ -1,4 +1,4 @@
-# selectr ![test][test-badge]
+# selectr [![GoDoc][godoc-badge]][godoc] ![test][test-badge]
 
 > Select values from objects/arrays with key-path notation.
 
@@ -62,3 +62,5 @@ sel.Resolve(m) // => 2
 - Import dynamic values from dynamic data files.
 
 [test-badge]: https://github.com/Charliekenney23/selectr/workflows/test/badge.svg
+[godoc-badge]: https://godoc.org/github.com/Charliekenney23/selectr?status.svg
+[godoc]: https://godoc.org/github.com/Charliekenney23/selectr
