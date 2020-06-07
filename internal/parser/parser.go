@@ -54,6 +54,9 @@ func (p *Parser) expect(tok token.Token) *ast.Node {
 
 	if node.Tok != tok {
 		p.errs.Push(errExpected(node.StartPos, tok))
+
+		// return nil to signal an error
+		return nil
 	}
 	return node
 }
@@ -70,6 +73,9 @@ func (p *Parser) parseAttributeExpr() *ast.AttrExpr {
 		p.unscan()
 	} else {
 		p.errs.Push(errUnexpected(node.StartPos, node.Lit))
+
+		// return nil to signal an error
+		return nil
 	}
 
 	attr := p.expect(token.Ident)
@@ -107,19 +113,28 @@ func (p *Parser) parseLitExpr() ast.LitExpr {
 	case token.Int:
 		p.unscan()
 		return p.parseIntLit()
-
-	default:
-		p.errs.Push(errUnexpected(node.StartPos, node.Lit))
 	}
 
+	p.errs.Push(errUnexpected(node.StartPos, node.Lit))
 	return nil
 }
 
 // parseIndexExpr parses an index expression.
 func (p *Parser) parseIndexExpression() *ast.IndexExpr {
 	lbrack := p.expect(token.LBracket)
+	if lbrack == nil {
+		return nil
+	}
+
 	litExpr := p.parseLitExpr()
+	if litExpr == nil {
+		return nil
+	}
+
 	rbrack := p.expect(token.RBracket)
+	if rbrack == nil {
+		return nil
+	}
 
 	return &ast.IndexExpr{
 		LBracket: lbrack,
@@ -133,6 +148,7 @@ func (p *Parser) Parse() (exprs []ast.Expr, err error) {
 ParseLoop:
 	for {
 		node := p.scan()
+		var expr ast.Expr
 
 		switch node.Tok {
 		case token.EOF:
@@ -145,16 +161,22 @@ ParseLoop:
 
 		case token.Dot, token.Ident:
 			p.unscan()
-			exprs = append(exprs, p.parseAttributeExpr())
+			expr = p.parseAttributeExpr()
 
 		case token.LBracket:
 			p.unscan()
-			exprs = append(exprs, p.parseIndexExpression())
+			expr = p.parseIndexExpression()
 
 		default:
 			// attribute and index expression are the only valid top level
 			// expressions.
 			return nil, errUnexpected(node.StartPos, node.Lit)
+		}
+
+		// expr is only nil when an error has occurred that is captured
+		// on the parser or scanner.
+		if expr != nil {
+			exprs = append(exprs, expr)
 		}
 
 		// throw any underlying scanner errors, if there are any.
