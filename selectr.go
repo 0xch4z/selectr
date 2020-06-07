@@ -11,8 +11,8 @@ import (
 // ResolveError represents an error that occured while resolving a
 // value for a given selector.
 type ResolveError struct {
-	// Err is the underlying error.
-	Err error
+	Msg  string
+	Code string
 
 	// Pos is the position in the corresponding key-path of the underlying
 	// expression that the resolver was dervied from.
@@ -21,27 +21,10 @@ type ResolveError struct {
 
 // Error implements (error).Error
 func (err ResolveError) Error() string {
-	return err.Err.Error()
-}
-
-// resolverError wraps an error to make a ResolveError with the given
-// key-path.
-func resolveError(pos int, err error) ResolveError {
-	return ResolveError{
-		Err: err,
-		Pos: pos,
+	if err.Code != "" {
+		return err.Code + ": " + err.Msg
 	}
-}
-
-// TypeError signals an unexpected type.
-type TypeError struct {
-	ExpectedType string
-	Value        interface{}
-}
-
-// Error implements (error).Error
-func (err TypeError) Error() string {
-	return fmt.Sprintf("TypeError: expected type %s but got %T", err.ExpectedType, err.Value)
+	return err.Msg
 }
 
 // Resolver resolves a value from an object.
@@ -56,34 +39,34 @@ type MapEntryResolver struct {
 	Expr ast.Expr
 }
 
-// Resolve resolves a value from a map entry.
+// Resolve resolves the value of an entry on the map.
 func (r *MapEntryResolver) Resolve(v interface{}) (interface{}, error) {
 	switch v := v.(type) {
 	case map[string]interface{}:
 		return v[r.Key], nil
-	default:
-		return nil, TypeError{
-			ExpectedType: "map[string]interface {}",
-			Value:        v,
-		}
+	}
+	return nil, ResolveError{
+		Code: "TypeError",
+		Msg:  fmt.Sprintf("cannot resolve attribute '%s' on type %T", r.Key, v),
+		Pos:  r.Expr.StartPos(),
 	}
 }
 
-// Expression returns the corresponding *ast.Expr.
+// Expression returns the corresponding ast.Expr.
 func (r *MapEntryResolver) Expression() ast.Expr {
 	return r.Expr
 }
 
-// MapEntryResolver resolves a map.
+// MapEntryResolver implements Resolver.
 var _ Resolver = (*MapEntryResolver)(nil)
 
-// sliceIndex indexes a slice.
+// SliceElementResolve resolves values from a slice.
 type SliceElementResolver struct {
 	Index int
 	Expr  *ast.IndexExpr
 }
 
-// Traverse indexes a slice.
+// Resolve resolves the value of the element at the index on the slice.
 func (r *SliceElementResolver) Resolve(v interface{}) (interface{}, error) {
 	switch v := v.(type) {
 	case []interface{}:
@@ -91,23 +74,24 @@ func (r *SliceElementResolver) Resolve(v interface{}) (interface{}, error) {
 			return nil, fmt.Errorf("index out of range; index is %d but length is only %d", r.Index, len(v))
 		}
 		return v[r.Index], nil
-	default:
-		return nil, TypeError{
-			ExpectedType: "[]interface {}",
-			Value:        v,
-		}
+	}
+	return nil, ResolveError{
+		Code: "TypeError",
+		Msg:  fmt.Sprintf("cannot resolve element '%d' on type %T", r.Index, v),
+		Pos:  r.Expr.StartPos(),
 	}
 }
 
-// Expression returns the corresponding *ast.Expr.
+// Expression returns the corresponding ast.Expr.
 func (r *SliceElementResolver) Expression() ast.Expr {
 	return r.Expr
 }
 
-// sliceIndex implements Traverser
+// SliceElementResolver implements Resolver.
 var _ Resolver = (*SliceElementResolver)(nil)
 
-// Parse parses a selector.
+// Parse parses a traversal tree from the selector string and returns
+// a new Selector instance.
 func Parse(s string) (*Selector, error) {
 	exprs, err := parser.New(strings.NewReader(s)).Parse()
 	if err != nil {
@@ -193,7 +177,7 @@ func (s *Selector) Resolve(v interface{}) (interface{}, error) {
 	for curr != nil {
 		var err error
 		if v, err = curr.Resolver.Resolve(v); err != nil {
-			return nil, resolveError(curr.Resolver.Expression().StartPos(), err)
+			return nil, err
 		}
 		curr = curr.Child
 	}

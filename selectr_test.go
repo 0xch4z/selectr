@@ -242,10 +242,9 @@ func TestResolve_error(t *testing.T) {
 		selector: ".arr[0]",
 		val:      map[string]interface{}{},
 		err: ResolveError{
-			Pos: 4,
-			Err: TypeError{
-				ExpectedType: "[]interface {}",
-			},
+			Code: "TypeError",
+			Msg:  "cannot resolve element '0' on type <nil>",
+			Pos:  4,
 		},
 	})
 
@@ -253,11 +252,9 @@ func TestResolve_error(t *testing.T) {
 		selector: "foo",
 		val:      []interface{}{},
 		err: ResolveError{
-			Pos: 0,
-			Err: TypeError{
-				ExpectedType: "map[string]interface {}",
-				Value:        []interface{}{},
-			},
+			Code: "TypeError",
+			Msg:  "cannot resolve attribute 'foo' on type []interface {}",
+			Pos:  0,
 		},
 	})
 
