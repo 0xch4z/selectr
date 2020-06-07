@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This document is the primary reference for Key-path notation as it relates to selectr. This document is intended to informally describe each language construct and their use with selectr.
+This document is the primary reference for Key-path notation as it relates to selectr. This document is intended to informally describe each language construct and its use with selectr.
 
 The basic lexical structure is:
 
@@ -10,9 +10,9 @@ The basic lexical structure is:
 KEY_PATH = (IDENTIFIER)? (INDEX_EXPRESSION | ATTRIBUTE_EXPRESSION)*
 ```
 
-Key-path notation is interpreted as a chain of attribute or index expressions as a means of traversing data. As such, there are only two types of literals: String literals and Integer literals. These value types are meant to be used in index expressions.
+Key-path notation is interpreted as a chain of attribute and index expressions as a means of traversing data. As such, there are only two types of literals: String literals and Integer literals. These value types are meant to be used in index expressions.
 
-If the first expression is an attribute expression, the dot can be ommited (leaving just the identifier).
+If the first expression is an attribute expression, the dot can be omitted (leaving just the identifier).
 
 #### Examples:
 
