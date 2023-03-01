@@ -165,13 +165,12 @@ type Selector struct {
 //
 // Example usage:
 //
-//     sel := Parse("test[0].foo")
-//     sel.Resolve(map[string]interface{}{
-//	       "test": []map[string]interface{}{
-//		       {"foo": "bar"}
-//         }
-//     })
-//
+//	    sel := Parse("test[0].foo")
+//	    sel.Resolve(map[string]interface{}{
+//		       "test": []map[string]interface{}{
+//			       {"foo": "bar"}
+//	        }
+//	    })
 func (s *Selector) Resolve(v interface{}) (interface{}, error) {
 	curr := s.tree
 	for curr != nil {
