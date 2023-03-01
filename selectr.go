@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/Charliekenney23/selectr/internal/parser"
-	"github.com/Charliekenney23/selectr/internal/parser/ast"
+	"github.com/0xch4z/selectr/internal/parser"
+	"github.com/0xch4z/selectr/internal/parser/ast"
 )
 
 // ResolveError represents an error that occured while resolving a

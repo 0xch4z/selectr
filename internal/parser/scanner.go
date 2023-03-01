@@ -5,8 +5,8 @@ import (
 	"bytes"
 	"io"
 
-	"github.com/Charliekenney23/selectr/internal/parser/ast"
-	"github.com/Charliekenney23/selectr/internal/parser/token"
+	"github.com/0xch4z/selectr/internal/parser/ast"
+	"github.com/0xch4z/selectr/internal/parser/token"
 )
 
 // Scanner represents a lexical scanner.

@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Charliekenney23/selectr/internal/parser/ast"
-	"github.com/Charliekenney23/selectr/internal/parser/token"
+	"github.com/0xch4z/selectr/internal/parser/ast"
+	"github.com/0xch4z/selectr/internal/parser/token"
 	"github.com/google/go-cmp/cmp"
 )
 

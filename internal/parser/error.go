@@ -3,7 +3,7 @@ package parser
 import (
 	"fmt"
 
-	"github.com/Charliekenney23/selectr/internal/parser/token"
+	"github.com/0xch4z/selectr/internal/parser/token"
 )
 
 // Error represents a parser error.
