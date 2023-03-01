@@ -1,4 +1,4 @@
-module github.com/Charliekenney23/selectr
+module github.com/0xch4z/selectr
 
 go 1.14
 

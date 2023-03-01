@@ -61,6 +61,6 @@ sel.Resolve(m) // => 2
 
 - Import dynamic values from dynamic data files.
 
-[test-badge]: https://github.com/Charliekenney23/selectr/workflows/test/badge.svg
-[godoc-badge]: https://godoc.org/github.com/Charliekenney23/selectr?status.svg
-[godoc]: https://godoc.org/github.com/Charliekenney23/selectr
+[test-badge]: https://github.com/0xch4z/selectr/workflows/test/badge.svg
+[godoc-badge]: https://godoc.org/github.com/0xch4z/selectr?status.svg
+[godoc]: https://godoc.org/github.com/0xch4z/selectr

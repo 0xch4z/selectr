@@ -4,7 +4,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/Charliekenney23/selectr/internal/parser"
+	"github.com/0xch4z/selectr/internal/parser"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 )
